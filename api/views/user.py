@@ -22,6 +22,9 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user()
+
+@app.post("/login", status_code=status.HTTP_201_CREATED)
+def login(user: )
     
     
     
