@@ -7,6 +7,7 @@ from api.core.security import hash_password, verify_password
 from api.auth import create_access_token
 from api.schemas.user import UserCreate
 from api.schemas.TokenResponse import TokenResponse
+from api.dependencies import get_current_user
 from api.models.user import User
 
 @app.post("/register", status_code=status.HTTP_201_CREATED)
@@ -39,6 +40,11 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     
     access_token = create_access_token(data={"sub": str(user.email)})
     return TokenResponse(access_token=access_token, token_type="bearer")
+
+# Getting the current user route
+@app.get("/users/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def read_current_user(current_user: User = Depends(get_current_user)):
+    return current_user
     
     
     
