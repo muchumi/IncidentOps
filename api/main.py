@@ -6,6 +6,7 @@ app = FastAPI(title="IncidentOps", description="An API service application for h
 # create tables
 Base.metadata.create_all(bind=engine)
 
+# Root endpoint
 @app.get("/", status_code=status.HTTP_200_OK)
 def read_root():
     return {
