@@ -1,7 +1,7 @@
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, UTC
 
-#This code creates a JWT (JSON Web Token) access token that can be used to authenticate users in an API
+# This code creates a JWT (JSON Web Token) access token that can be used to authenticate users in an API
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
