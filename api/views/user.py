@@ -1,7 +1,6 @@
-from fastapi import Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from api.main import app
 from api.db.database import get_db
 from api.core.security import hash_password, verify_password
 from api.auth import create_access_token
@@ -10,7 +9,10 @@ from api.schemas.TokenResponse import TokenResponse
 from api.dependencies import get_current_user
 from api.models.user import User
 
-@app.post("/register", status_code=status.HTTP_201_CREATED)
+router = APIRouter(tags=["Users"])
+
+# User registration route
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     # normalize the email to lowercase and strip any leading/trailing whitespace
     normalized_email=user.email.strip().lower()
@@ -25,11 +27,11 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.flush()
     db.commit()
     db.refresh(new_user)
-    return new_user()
+    return new_user
 
 
 # User login route
-@app.post("/auth/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
+@router.post("/auth/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # normalizing email
     user_email=form_data.username.strip().lower()
@@ -42,12 +44,12 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     return TokenResponse(access_token=access_token, token_type="bearer")
 
 # Getting the current user route
-@app.get("/users/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
+@router.get("/users/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
 def read_current_user(current_user: User = Depends(get_current_user)):
     return current_user
     
     
-    
+  
     
     
     
