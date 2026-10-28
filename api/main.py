@@ -6,6 +6,7 @@ app = FastAPI(title="IncidentOps", description="An API service application for h
 
 # Registering routers using app.include_router()
 app.include_router(user.router)
+app.include_router(task.router)
 
 # create tables
 Base.metadata.create_all(bind=engine)
