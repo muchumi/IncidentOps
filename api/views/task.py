@@ -23,4 +23,5 @@ def create_task(task_data:TaskCreate, db: Session = Depends(get_db), current_use
     db.add(new_task)
     db.commit()
     db.refresh(new_task)
+    
     return new_task
