@@ -1,6 +1,8 @@
 from fastapi import FastAPI, status
 from api.db.database import Base, engine
 from api.views import user, task
+from api.models.user import User
+from api.models.task import Task
 
 app = FastAPI(title="IncidentOps", description="An API service application for handling incidents and operations.", version="1.0.0")
 
