@@ -30,3 +30,4 @@ def create_task(task_data:TaskCreate, db: Session = Depends(get_db), current_use
 def get_my_tasks(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     tasks = (db.query(Task).filter(Task.created_by==current_user.id).all())
     return tasks
+
