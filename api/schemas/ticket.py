@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 # Schema for creating a support ticket
-class TaskCreate(BaseModel):
+class TicketCreate(BaseModel):
     title: str = Field(
         ...,
         min_length=5,
@@ -23,7 +23,7 @@ class TaskCreate(BaseModel):
 
 
 # Schema for returning a support ticket
-class TaskResponse(BaseModel):
+class TicketResponse(BaseModel):
     id: int
     title: str
     description: str

@@ -3,8 +3,8 @@ from sqlalchemy import (Column,Integer,String,Text,ForeignKey,DateTime)
 from sqlalchemy.sql import func
 from api.db.database import Base
 
-class Task(Base):
-    __tablename__ = "tasks"
+class Ticket(Base):
+    __tablename__ = "tickets"
     # Primary key
     id = Column(Integer, primary_key=True, index=True)
     # Ticket information
