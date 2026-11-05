@@ -33,6 +33,6 @@ def get_my_tickets(db: Session = Depends(get_db), current_user: User = Depends(g
 
 # Getting all tickets submitted by all users
 @router.get("/all", response_model=list[TicketResponse])
-def get_all_tickets(db: Session = Depends(get_db)):
+def get_all_tickets(db: Session = Depends(get_db), current_user:dict=Depends(get_current_user)):
     tickets = db.query(Ticket).order_by(Ticket.id.desc()).all()
     return tickets
