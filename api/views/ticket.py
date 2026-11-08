@@ -36,3 +36,11 @@ def get_my_tickets(db: Session = Depends(get_db), current_user: User = Depends(g
 def get_all_tickets(db: Session = Depends(get_db), current_user:dict=Depends(get_current_user)):
     tickets = db.query(Ticket).order_by(Ticket.id.desc()).all()
     return tickets
+
+# Getting a single ticket submitted by specific user
+@router.get("/{ticket_id}", response_model=TicketResponse)
+def get_single_ticket(ticket_id:int, db:Session=Depends(get_db), current_user:User=Depends(get_current_user)):
+    single_ticket=db.query(Ticket).filter(Ticket.id==ticket_id, Ticket.user_id==current_user.id).first()
+    if not single_ticket:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+    return single_ticket
