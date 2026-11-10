@@ -2,7 +2,7 @@
 from sqlalchemy import (Column,Integer,String,Text,ForeignKey,DateTime)
 from sqlalchemy.sql import func
 from api.db.database import Base
-# from api.models.user import User
+from api.models.user import User
 
 class Ticket(Base):
     __tablename__ = "tickets"
