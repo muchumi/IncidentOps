@@ -28,12 +28,12 @@ def create_ticket(ticket_data:TicketCreate, db: Session = Depends(get_db), curre
 # Getting all tickets submitted by the authenticated user
 @router.get("/my-tickets", response_model=list[TicketResponse])
 def get_my_tickets(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    tickets = (db.query(Ticket).filter(Ticket.created_by==current_user.id).all())
+    tickets = (db.query(Ticket).filter(Ticket.created_by==current_user.id).order_by(Ticket.id.desc()).all())
     return tickets
 
 # Getting all tickets submitted by all users
 @router.get("/all", response_model=list[TicketResponse])
-def get_all_tickets(db: Session = Depends(get_db), current_user:dict=Depends(get_current_user)):
+def get_all_tickets(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     tickets = db.query(Ticket).order_by(Ticket.id.desc()).all()
     return tickets
 
