@@ -8,7 +8,7 @@ from api.models.user import User
 from api.auth import SECRET_KEY, ALGORITHM
 
 #This code receives, verifies and uses that JWT to identify the currently authenticated user
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: session = Depends(get_db)):
     credentials_exception = HTTPException(
