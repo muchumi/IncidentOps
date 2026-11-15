@@ -31,7 +31,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 
 # User login route
-@router.post("/auth/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
+@router.post("/login", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # normalizing email
     user_email=form_data.username.strip().lower()
@@ -44,7 +44,7 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     return TokenResponse(access_token=access_token, token_type="bearer")
 
 # Getting the current user route
-@router.get("/users/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
+@router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
 def read_current_user(current_user: User = Depends(get_current_user)):
     return current_user
     
