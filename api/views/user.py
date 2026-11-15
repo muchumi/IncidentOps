@@ -9,7 +9,7 @@ from api.schemas.TokenResponse import TokenResponse
 from api.dependencies import get_current_user
 from api.models.user import User
 
-router = APIRouter(tags=["Users"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 # User registration route
 @router.post("/register", status_code=status.HTTP_201_CREATED)
