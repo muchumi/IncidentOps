@@ -10,7 +10,7 @@ from api.models.ticket import Ticket
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
 
 # Creating a support ticket
-@router.post("/", response_model=TicketResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/create", response_model=TicketResponse, status_code=status.HTTP_201_CREATED)
 def create_ticket(ticket_data:TicketCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Logic to create a ticket
     new_ticket=Ticket(
