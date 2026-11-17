@@ -31,6 +31,20 @@ def get_my_tickets(db: Session = Depends(get_db), current_user: User = Depends(g
     tickets = (db.query(Ticket).filter(Ticket.created_by==current_user.id).order_by(Ticket.id.desc()).all())
     return tickets
 
+# Endpoint that allows a user to edit their own ticket
+@router.put("/{ticket_id}/edit", response_model=TicketResponse)
+def edit_ticket(ticket_id:int, ticket_data:TicketCreate, db:Session=Depends(get_db), current_user:User=Depends(get_current_user)):
+    ticket_to_edit=db.query(Ticket).filter(Ticket.id==ticket_id, Ticket.created_by==current_user.id).first()
+    if not ticket_to_edit:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+    # Updating the ticket fields
+    ticket_to_edit.title = ticket_data.title
+    ticket_to_edit.description = ticket_data.description
+    ticket_to_edit.priority = ticket_data.priority
+    db.commit()
+    db.refresh(ticket_to_edit)
+    return ticket_to_edit
+
 # Getting all tickets submitted by all users
 @router.get("/all", response_model=list[TicketResponse])
 def get_all_tickets(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
