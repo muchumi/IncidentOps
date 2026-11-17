@@ -45,6 +45,16 @@ def edit_ticket(ticket_id:int, ticket_data:TicketCreate, db:Session=Depends(get_
     db.refresh(ticket_to_edit)
     return ticket_to_edit
 
+# Endpoint that allows a user to delete their own ticket
+@router.delete("/{ticket_id}/delete", response_model=TicketResponse)
+def delete_ticket(ticket_id:int, db:Session=Depends(get_db), current_user:User=Depends(get_current_user)):
+    ticket_to_delete=db.query(Ticket).filter(Ticket.id==ticket_id, Ticket.created_by==current_user.id).first()
+    if not ticket_to_delete:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+    db.delete(ticket_to_delete)
+    db.commit()
+    return ticket_to_delete
+
 # Getting all tickets submitted by all users
 @router.get("/all", response_model=list[TicketResponse])
 def get_all_tickets(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
