@@ -12,7 +12,7 @@ from api.models.user import User
 router = APIRouter(prefix="/users", tags=["Users"])
 
 # User registration route
-@router.post("/register", response_model= status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     # normalize the email to lowercase and strip any leading/trailing whitespace
     normalized_email=user.email.strip().lower()
