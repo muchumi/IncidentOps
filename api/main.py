@@ -1,3 +1,5 @@
+from email.mime import application
+
 from fastapi import FastAPI, status
 from fastapi.staticfiles import StaticFiles
 from api.db.database import Base, engine
@@ -21,5 +23,8 @@ def read_root():
         "message": "Hello World!"
     }
     
-# Configuring static file serving.The application will make uploaded pictures accessible through     
+"""
+    Configuring static file serving.
+    The application will make uploaded pictures accessible through HTTP.
+"""    
 app.mount("/static", StaticFiles(directory="static"), name="static")
