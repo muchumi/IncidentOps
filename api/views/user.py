@@ -1,6 +1,12 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from pathlib import Path
+from uuid import uuid4
+from io import BytesIO
+from PIL import Image
+import os
+
 from api.db.database import get_db
 from api.core.security import hash_password, verify_password
 from api.auth import create_access_token
@@ -8,6 +14,21 @@ from api.schemas.user import UserCreate, UserResponse
 from api.schemas.TokenResponse import TokenResponse
 from api.dependencies import get_current_user
 from api.models.user import User
+
+
+# Directory for storing profile pictures
+PROFILE_DIR = Path("static/profile_pictures")
+PROFILE_DIR.mkdir(parents=True, exist_ok=True)
+
+# Maximum upload size: 5 MB
+MAX_FILE_SIZE = 5 * 1024 * 1024
+
+# Supported image formats
+ALLOWED_FORMATS = {
+    "JPEG": ".jpg",
+    "PNG": ".png",
+    "WEBP": ".webp"
+}
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -47,9 +68,83 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
 @router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
 def read_current_user(current_user: User = Depends(get_current_user)):
     return current_user
-    
-    
-  
+      
+# Route / endpoint that allows users to update their profile picture
+@router.put("/me/profile-picture",status_code=status.HTTP_200_OK)
+def update_profile_picture(file: UploadFile = File(...), db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    # Read uploaded file
+    file_content = file.file.read(MAX_FILE_SIZE + 1)
+
+    # Validate file size
+    if len(file_content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Image must not exceed 5 MB"
+        )
+
+    # Validate that the uploaded file is a genuine image
+    try:
+        image = Image.open(BytesIO(file_content))
+        image.verify()
+
+        image_format = image.format
+
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid image file"
+        )
+
+    # Check supported image format
+    if image_format not in ALLOWED_FORMATS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only JPEG, PNG and WEBP images are allowed"
+        )
+
+    # Generate a unique filename
+    file_extension = ALLOWED_FORMATS[image_format]
+    filename = f"{uuid4().hex}{file_extension}"
+
+    # Save image
+    file_path = PROFILE_DIR / filename
+
+    try:
+        file_path.write_bytes(file_content)
+
+        # Save image path in database
+        old_picture = current_user.profile_picture
+        current_user.profile_picture = (
+            f"/static/profile_pictures/{filename}"
+        )
+
+        db.commit()
+        db.refresh(current_user)
+
+    except Exception:
+        db.rollback()
+
+        # Remove newly uploaded image if database update fails
+        if file_path.exists():
+            file_path.unlink()
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update profile picture"
+        )
+
+    # Remove previous picture after successful update
+    if old_picture:
+        old_filename = Path(old_picture).name
+        old_file = PROFILE_DIR / old_filename
+
+        if old_file.parent == PROFILE_DIR and old_file.exists():
+            old_file.unlink()
+
+    return {
+        "message": "Profile picture updated successfully",
+        "profile_picture": current_user.profile_picture
+    }
     
     
     
