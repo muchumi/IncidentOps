@@ -146,5 +146,8 @@ def update_profile_picture(file: UploadFile = File(...), db: Session = Depends(g
         "profile_picture": current_user.profile_picture
     }
     
-    
-    
+   
+# Endpoint that allows user to log out from their account
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def user_logout(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return {"message": "You have been logged out successfully"}   

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from typing import 
+from typing import Optional
 
 # Creating Pydantic models to validate request and response data
 
