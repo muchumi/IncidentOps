@@ -1,4 +1,5 @@
 from fastapi import FastAPI, status
+from fastapi.staticfiles import StaticFiles
 from api.db.database import Base, engine
 from api.views import ticket, user
 from api.models.user import User
@@ -19,3 +20,6 @@ def read_root():
     return {
         "message": "Hello World!"
     }
+    
+# Configuring static file serving.The application will make uploaded pictures accessible through     
+app.mount("/static", StaticFiles(directory="static"), name="static")
