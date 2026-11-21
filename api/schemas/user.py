@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
+from typing import 
 
 # Creating Pydantic models to validate request and response data
 
@@ -16,5 +17,6 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
+    profile_picture: Optional[str]=None
     # required to return SQLAlchemy models inform of JSON response
     model_config = ConfigDict(from_attributes=True)
