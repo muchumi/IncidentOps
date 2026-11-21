@@ -146,6 +146,37 @@ def update_profile_picture(file: UploadFile = File(...), db: Session = Depends(g
         "profile_picture": current_user.profile_picture
     }
     
+
+# Endpoint that allows users to delete their profile picture
+@router.delete("/me/profile-picture", status_code=status.HTTP_200_OK)
+def delete_profile_picture(db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
+    # Check whether the user has a profile picture
+    if not current_user.profile_picture:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="You do not have a profile picture"
+        )
+
+    # Get the existing profile picture filename
+    filename = Path(current_user.profile_picture).name
+
+    # Construct the image path
+    file_path = PROFILE_DIR / filename
+
+    # Remove the image from storage
+    if file_path.exists() and file_path.is_file():
+        file_path.unlink()
+
+    # Remove the image reference from the database
+    current_user.profile_picture = None
+
+    db.commit()
+    db.refresh(current_user)
+
+    return {
+        "message": "Profile picture deleted successfully",
+        "profile_picture": current_user.profile_picture
+    }
    
 # Endpoint that allows user to log out from their account
 @router.post("/logout", status_code=status.HTTP_200_OK)
