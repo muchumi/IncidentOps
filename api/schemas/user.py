@@ -10,7 +10,6 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
 
-
 # Response model for returning user data (does not include password for security reasons)
 class UserResponse(BaseModel):
     id: int
