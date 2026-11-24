@@ -502,7 +502,7 @@ Until a license is explicitly added to the repository, the project should not be
 
 # 👨‍💻 Author
 
-**Muchumi**
+**Wycliffe Muchumi Maina**
 
 GitHub:
 
