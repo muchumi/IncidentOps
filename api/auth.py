@@ -27,8 +27,6 @@ def create_access_token(data: dict):
         "jti": token_id,
         "exp": expire
     })
-    # Adding the expiration time to the token data
-    to_encode.update({"exp": expire})
     
     # Encoding the JWT with the secret key and algorithm
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
