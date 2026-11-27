@@ -1,3 +1,5 @@
+from jose import jwt, JWTError
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -5,15 +7,15 @@ from pathlib import Path
 from uuid import uuid4
 from io import BytesIO
 from PIL import Image
-import os
 
 from api.db.database import get_db
 from api.core.security import hash_password, verify_password
-from api.auth import create_access_token
+from api.auth import create_access_token, SECRET_KEY, ALGORITHM
 from api.schemas.user import UserCreate, UserResponse
 from api.schemas.TokenResponse import TokenResponse
-from api.dependencies import get_current_user
+from api.dependencies import get_current_user, oauth2_scheme
 from api.models.user import User
+from api.models.revokedToken import RevokedToken
 
 
 # Directory for storing profile pictures
@@ -178,7 +180,64 @@ def delete_profile_picture(db: Session = Depends(get_db),current_user: User = De
         "profile_picture": current_user.profile_picture
     }
    
-# Endpoint that allows user to log out from their account
+
+# Endpoint that allows users to log out from their accounts
 @router.post("/logout", status_code=status.HTTP_200_OK)
-def user_logout(current_user: User = Depends(get_current_user)):
-    return {"message": "You have been logged out successfully"}   
+def user_logout(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    # Decode JWT token to retrieve its payload
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid access token"
+        )
+
+    # Extract token identifier and expiration timestamp
+    token_id = payload.get("jti")
+    expiration = payload.get("exp")
+
+    # Validate required token claims
+    if not token_id or expiration is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid access token"
+        )
+
+    # Create a revoked token record
+    revoked_token = RevokedToken(
+        jti=token_id,
+        expires_at=datetime.fromtimestamp(
+            expiration,
+            tz=timezone.utc
+        )
+    )
+
+    try:
+        # Store the revoked token in the database
+        db.add(revoked_token)
+        db.commit()
+
+    except Exception:
+        db.rollback()
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to log out. Please try again."
+        )
+
+    return {
+        "message": f"{current_user.first_name}, you have been logged out successfully."
+    }
+
+        
