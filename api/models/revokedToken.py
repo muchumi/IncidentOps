@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
-
 from api.db.database import Base
 
 # Model for storing revoked JWT access tokens
